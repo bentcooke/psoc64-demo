@@ -45,16 +45,18 @@ This section is intended for developers to get started, import the example appli
 
 This repository is in the process of being updated and depends on few enhancements being deployed in mbed-cloud-client. In the meantime, follow these steps to import and apply the patches before compiling.
 
+```
     mbed import https://github.com/maclobdell/psoc64-demo
     cd psoc64-demo
-
+```
 ## Compiling
 
+```
     mbed target CY8CKIT_064S2_4343W
     mbed toolchain ARM
     mbed device-management init -d arm.com --model-name example-app --force -q
     mbed compile --profile release
-
+```
 ## Program Flow
 
 1. Initialize, connect and register to Pelion DM
@@ -70,20 +72,19 @@ This repository is in the process of being updated and depends on few enhancemen
    Follow latest workshop slides, plus these extra instructions 
    
    1. Update mbed cli to the latest (from command line)
-   
+```   
         pip install -U mbed-cli
-   
+```   
    2. Set compiler path in mbed cli for arm compiler 6
-   
+```   
        mbed config -G ARMC6_PATH "<path to compiler>" 
-        
+```        
    3. download the example application
-   
+```   
        mbed import https://github.com/maclobdell/psoc64-demo
        
        cd psoc64-demo
-       
-   
+```       
    4. download the script
    
        Go to https://github.com/maclobdell/fota-runner
@@ -91,25 +92,47 @@ This repository is in the process of being updated and depends on few enhancemen
        Download fota-runner.py, place it in the top level of the example application.  
      
    5. deploy libraries
-   
+```   
       mbed deploy  
-     
-   6.  compile
-   
+```   
+   6.  Install the custom Pelion manifest tool for PSoC 64
+```
+      pip install manifest-tool-1.5.3.tar.gz
+```
+   7. Initialize manifest tool and create update certificate
+```
+      mbed device-management init -d <any domain you want>.com --model-name <any model name you want> --force -q   
+```
+   8.  Add user application key and policy file that were used to provision your PSoC 64 board
+
+   Place key file in: 
+```
+   \example-pelion\mbed-os\targets\TARGET_Cypress\TARGET_PSOC6\sb-tools\keys\
+```
+   Place policy file in: 
+```
+   \example-pelion\mbed-os\targets\TARGET_Cypress\TARGET_PSOC6\sb-tools\policy\
+```
+   9. Set the WiFi SSID and Password in `mbed_app.json`
+
+   10. Compile
+```   
        mbed compile -m CY8CKIT_064S2_4343W -t ARM --profile release
-   
-   7. flash the memory
+```   
+   11. Flash the memory
    
         Drag and drop the BUILD/ CY8CKIT_064S2_4343W/ARM-RELEASE/psoc64-demo.hex file to the DAPLINK drive
    
-   8.  open a terminal for the board serial port
+   12. Open a terminal for the board serial port
    
-   9.  If using first to claim, when prompted, type a “c” (first time only), to continue with the claiming.
+   13. If using first to claim, when prompted, type a “c” (first time only), to continue with the claiming.
    
-   10. run the script to automatically update the version and launch a fota campaign.
-   
+   14. Run the script to automatically update the version and launch a fota campaign.
+```   
        python fota-runner.py    
-
+```
+      The script will update the version of the application, recompile it, and launch a firmware update campaign
+    
 # Known-issues
 
 Please review existing issues on github and report any problem you may see.
