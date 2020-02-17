@@ -1,3 +1,5 @@
+#ifdef EINK_DISPLAY
+
 #include "mbed.h"
 #include "blinker_app.h"
 #include "eink_display_app.h"
@@ -240,7 +242,7 @@ void set_pelion_state(pelion_state_t state)
     case CONNECTING:
       ShowPelionState(CONNECTING);
       blinker_color_set(LED_COLOR_GREEN);
-      blinker_rate_set(2);
+      blinker_rate_set(4);
       blinker_mode_set(BLINKER_MODE_BLINKING);  
       break;			
     case CONNECTED:
@@ -256,25 +258,25 @@ void set_pelion_state(pelion_state_t state)
     case REQUESTED:
       ShowPelionState(REQUESTED);
       blinker_color_set(LED_COLOR_BLUE);		
-      blinker_rate_set(2);
+      blinker_rate_set(4);
       blinker_mode_set(BLINKER_MODE_BLINKING);  
       break;					
     case PROCESSING:
       ShowPelionState(PROCESSING);
       blinker_color_set(LED_COLOR_BLUE);		
-      blinker_rate_set(3);
+      blinker_rate_set(5);
       blinker_mode_set(BLINKER_MODE_BLINKING);  
       break;					
     case DOWNLOADING:
       ShowPelionState(DOWNLOADING);
       blinker_color_set(LED_COLOR_CYAN);		
-      blinker_rate_set(3);		
+      blinker_rate_set(5);		
       blinker_mode_set(BLINKER_MODE_BLINKING);  
       break;					
     case INSTALLING:
       ShowPelionState(INSTALLING);
       blinker_color_set(LED_COLOR_CYAN);		
-      blinker_rate_set(3);		
+      blinker_rate_set(5);		
       blinker_mode_set(BLINKER_MODE_BLINKING);
       break;					
     case COMPLETE:
@@ -304,3 +306,5 @@ void set_fw_version(uint8_t maj, uint8_t min, uint8_t pat)
 {
     snprintf(version_str, 7, "%2d.%1d.%1d", maj, min, pat);
 }
+
+#endif //EINK_DISPLAY

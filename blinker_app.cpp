@@ -23,7 +23,7 @@ uint8_t blinker_mode = BLINKER_MODE_OFF;
 void led_off(void);
 void led_on(void);
 
-uint32_t blink_period[8] = {1000,750,500,250,100,50,25,5};
+uint32_t blink_period[8] = {4000,3000,2000,1000,500,250,100,50};
 
 volatile int32_t blink_index = 0;
 
@@ -32,18 +32,18 @@ void blinker_thread(void)
     while(true){
         //if(blink_period[blink_index] !=0)
         if(blinker_mode == BLINKER_MODE_BLINKING) {
-			/*blink the led */
-			led_on();			
+      			/*blink the led */
+      			led_on();			
             ThisThread::sleep_for(blink_period[blink_index]/2);
-			led_off();
+      			led_off();
             ThisThread::sleep_for(blink_period[blink_index]/2);			
         } else if(blinker_mode == BLINKER_MODE_SOLID) {
-			/*turn the led on and leave it */
-			led_on();
+      			/*turn the led on and leave it */
+      			led_on();
             ThisThread::sleep_for(200);
         } else {
-			/*turn the led off */
-			led_off();
+      			/*turn the led off */
+      			led_off();
             ThisThread::sleep_for(200);
         }
     }
@@ -105,7 +105,9 @@ void blinker_color_set(uint8_t color)
 void blinker_mode_set(uint8_t mode)
 {
     blinker_mode = mode;
-	
+    if(mode == BLINKER_MODE_SOLID){
+        blinker_rate_set(0);
+	  }
 }
 
 void led_off(void)
@@ -117,23 +119,23 @@ void led_off(void)
 
 void led_on(void)
 {   
-   if(led_color == LED_COLOR_RED) {
-      led_red = LED_ON;
+    if(led_color == LED_COLOR_BLACK) {
+      led_red = LED_OFF;
       led_green = LED_OFF;
       led_blue = LED_OFF;
     }
-    else if(led_color == LED_COLOR_GREEN) {
-      led_red = LED_OFF;
-      led_green = LED_ON;
-      led_blue = LED_OFF;
-    } 
-    else if(led_color == LED_COLOR_BLUE) {
-      led_red = LED_OFF;
+    if(led_color == LED_COLOR_RED) {
+      led_red = LED_ON;
       led_green = LED_OFF;
-      led_blue = LED_ON;
+      led_blue = LED_OFF;
     }
     else if(led_color == LED_COLOR_MAGENTA) {
       led_red = LED_ON;
+      led_green = LED_OFF;
+      led_blue = LED_ON;
+    }    
+    else if(led_color == LED_COLOR_BLUE) {
+      led_red = LED_OFF;
       led_green = LED_OFF;
       led_blue = LED_ON;
     }
@@ -141,7 +143,12 @@ void led_on(void)
       led_red = LED_OFF;
       led_green = LED_ON;
       led_blue = LED_ON;
-    }
+    }    
+    else if(led_color == LED_COLOR_GREEN) {
+      led_red = LED_OFF;
+      led_green = LED_ON;
+      led_blue = LED_OFF;
+    } 
     else if(led_color == LED_COLOR_YELLOW) {
       led_red = LED_ON;
       led_green = LED_ON;

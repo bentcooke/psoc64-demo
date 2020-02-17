@@ -24,8 +24,13 @@
 
 #include "mbed-trace/mbed_trace.h"             // Required for mbed_trace_*
 
-#include "eink_display_app.h"
+#ifdef EINK_DISPLAY
+  #include "eink_display_app.h"
+#endif
 #include "app_version.h"
+#include "cypress_capsense.h"
+#include "blinker_app.h"
+#include "wifi_credential_handler.h"
 
 #if defined(TARGET_CY8CKIT_064S2_4343W) && !defined(DISABLE_CY_FACTORY_FLOW)
     extern "C" fcc_status_e cy_factory_flow(void);
@@ -34,12 +39,21 @@
 // Pointers to the resources that will be created in main_application().
 static MbedCloudClient *cloud_client;
 static bool cloud_client_running = true;
-static NetworkInterface *network = NULL;
+//static NetworkInterface *network = NULL;
+static WiFiInterface *network = NULL;
 
 static M2MResource* m2m_get_res;
+static M2MResource* m2m_get_res_led_rate;
+static M2MResource* m2m_get_res_led_rate_min;
+static M2MResource* m2m_get_res_led_rate_max;
 static M2MResource* m2m_put_res;
 static M2MResource* m2m_post_res;
 static M2MResource* m2m_deregister_res;
+  
+Thread res_thread;
+EventQueue res_queue;
+char ssid_buf[40];
+char pswd_buf[40];     
 
 void print_client_ids(void)
 {
@@ -66,7 +80,9 @@ void execute_post(void* /*arguments*/)
 
 void deregister_client(void)
 {
+  #ifdef EINK_DISPLAY
     set_pelion_state(DEREGISTERED);
+  #endif
     printf("Unregistering and disconnecting from the network.\n");
     cloud_client->close();
 }
@@ -81,9 +97,9 @@ void deregister(void* /*arguments*/)
 
 void client_registered(void)
 {
-  
+  #ifdef EINK_DISPLAY  
     set_pelion_state(REGISTERED);
-  
+  #endif
     printf("Client registered.\n");
     print_client_ids();
 }
@@ -113,9 +129,17 @@ void update_progress(uint32_t progress, uint32_t total)
     }
     if((percent == 1) & (start_flag == 0)) 
     {
+      #ifdef EINK_DISPLAY
         set_pelion_state(DOWNLOADING);
+      #endif
         start_flag = 1;
     }
+}
+
+void update_resources(void)
+{
+    m2m_get_res_led_rate->set_value(blinker_rate_get());
+    //printf("Blink Rate %" PRIu64 "\n", m2m_get_res_led_rate->get_value_int());
 }
 
 int main(void)
@@ -128,17 +152,21 @@ int main(void)
         return -1;
     }
 
+  #ifdef EINK_DISPLAY
     status = eink_display_app_start();
     if (status != 0) {
         printf("eink display init failed with %d\n", status);
         return -1;
     }
-    
+  #endif 
+   
     printf("App Version = %d.%d.%d\n\r", APP_VERSION_MAJOR, APP_VERSION_MINOR, APP_VERSION_PATCH);
+#ifdef EINK_DISPLAY
     set_fw_version(APP_VERSION_MAJOR, APP_VERSION_MINOR, APP_VERSION_PATCH);
 
     set_pelion_state(CONNECTING);
-    
+#endif 
+     
     // Mount default kvstore
     printf("Application ready\n");
     status = kv_init_storage_config();
@@ -147,25 +175,62 @@ int main(void)
         return -1;
     }
 
+  #ifdef EINK_DISPLAY
     set_pelion_state(CONNECTING);
+  #endif
+    status = get_wifi_credentials(ssid_buf, pswd_buf);
+    if (status != MBED_SUCCESS) {
+        printf("Failed to get wifi credentials from storage or user input.  Error \n");
+        return -1;
+    } else {
+       printf("\n\r");
+       printf("SSID: %s\r\n",ssid_buf);
+       printf("PASSWORD: ");
+       for(int p=0;p<strlen(pswd_buf); p++) { 
+         //print * for the number of password characters
+         printf("*");
+       }
+       printf("\r\n");
+    }
 
     // Connect with NetworkInterface
     printf("Connect to network\n");
-    network = NetworkInterface::get_default_instance();
+    //network = NetworkInterface::get_default_instance();
+    network = WiFiInterface::get_default_instance();
     if (network == NULL) {
         printf("Failed to get default NetworkInterface\n");
         return -1;
     }
-    status = network->connect();
+    printf("\nConnecting to [%s]...\n", (const char*) ssid_buf);
+    //status = network->connect();
+    status = network->connect( (const char*) ssid_buf, (const char*) pswd_buf, NSAPI_SECURITY_WPA_WPA2);
     if (status != NSAPI_ERROR_OK) {
         printf("NetworkInterface failed to connect with %d\n", status);
+        printf("Do you want to delete the saved SSID & Password? [y/n]: \n\r");
+        int in_char = getchar();
+        if (in_char == 'y') {
+            status = fcc_init();
+            if (status != FCC_STATUS_SUCCESS) {
+                printf("fcc_init() failed with %d\n", status);
+                return -1;
+            }
+            printf("Reset storage to an empty state.\n");
+            int fcc_status = fcc_storage_delete();
+            if (fcc_status != FCC_STATUS_SUCCESS) {
+                printf("Failed to delete storage - %d\n", status);
+                return -1;
+            }
+            printf("Reset storage done...Reseting device.\n");
+            ThisThread::sleep_for(10000);
+            NVIC_SystemReset();
+        }
         return -1;
     }
-   //todo - add netork retry, if fails to connect, go to simulated mode
    
+  #ifdef EINK_DISPLAY
    set_pelion_state(CONNECTED);
-
-    printf("Network initialized, connected with IP %s\n\n", network->get_ip_address());
+  #endif
+    printf("Network initialized, connected with IP [%s]\n\n", network->get_ip_address());
 
 #if defined(DISABLE_CY_FACTORY_FLOW)
     // Run developer flow
@@ -204,6 +269,15 @@ int main(void)
         return -1;
     }
 #endif
+    printf("Initializing Capacitive Touch Sensors\n");
+
+    if(capsense_main() != 0)
+    {
+        printf("Capacitive Touch Sensors failed to initialize \n");
+        return -1;
+    }
+
+    blinker_start();
 
     printf("Create resources\n");
     M2MObjectList m2m_obj_list;
@@ -215,6 +289,29 @@ int main(void)
         return -1;
     }
 
+    // Resource for storing led blink rate
+    // GET resource current rate
+    m2m_get_res_led_rate = M2MInterfaceFactory::create_resource(m2m_obj_list, 3346, 0, 5700, M2MResourceInstance::INTEGER, M2MBase::GET_ALLOWED);
+    if (m2m_get_res_led_rate->set_value(0) != true) {
+        printf("m2m_get_res_led_rate->set_value() failed\n");
+        return -1;
+    }
+
+    // GET resource min rate
+    m2m_get_res_led_rate_min = M2MInterfaceFactory::create_resource(m2m_obj_list, 3346, 0, 5603, M2MResourceInstance::INTEGER, M2MBase::GET_ALLOWED);
+    if (m2m_get_res_led_rate_min->set_value(0) != true) {
+        printf("m2m_get_res_led_rate_min->set_value() failed\n");
+        return -1;
+    }
+
+    // GET resource max rate
+    m2m_get_res_led_rate_max = M2MInterfaceFactory::create_resource(m2m_obj_list, 3346, 0, 5604, M2MResourceInstance::INTEGER, M2MBase::GET_ALLOWED);
+    if (m2m_get_res_led_rate_max->set_value(7) != true) {
+        printf("m2m_get_res_led_rate_max->set_value() failed\n");
+        return -1;
+    }
+
+    // Resource for generic variable
     // PUT resource 3201/0/5853
     m2m_put_res = M2MInterfaceFactory::create_resource(m2m_obj_list, 3201, 0, 5853, M2MResourceInstance::INTEGER, M2MBase::GET_PUT_ALLOWED);
     if (m2m_put_res->set_value(0) != true) {
@@ -227,14 +324,14 @@ int main(void)
     }
 
     // POST resource 3201/0/5850
-    m2m_post_res = M2MInterfaceFactory::create_resource(m2m_obj_list, 3201, 0, 5850, M2MResourceInstance::INTEGER, M2MBase::POST_ALLOWED);
+    m2m_post_res = M2MInterfaceFactory::create_resource(m2m_obj_list, 3201, 0, 5850, M2MResourceInstance::INTEGER, M2MBase::GET_POST_ALLOWED);
     if (m2m_post_res->set_execute_function(execute_post) != true) {
         printf("m2m_post_res->set_execute_function() failed\n");
         return -1;
     }
 
     // POST resource 5000/0/1 to trigger deregister.
-    m2m_deregister_res = M2MInterfaceFactory::create_resource(m2m_obj_list, 5000, 0, 1, M2MResourceInstance::INTEGER, M2MBase::POST_ALLOWED);
+    m2m_deregister_res = M2MInterfaceFactory::create_resource(m2m_obj_list, 5000, 0, 1, M2MResourceInstance::INTEGER, M2MBase::GET_POST_ALLOWED);
 
     // Use delayed response
     m2m_deregister_res->set_delayed_response(true);
@@ -248,6 +345,9 @@ int main(void)
     cloud_client = new MbedCloudClient(client_registered, client_unregistered, client_error, NULL, update_progress);
     cloud_client->add_objects(m2m_obj_list);
     cloud_client->setup(network); // cloud_client->setup(NULL); -- https://jira.arm.com/browse/IOTCLT-3114
+    //start a thread to update resources once every 2 seconds
+    res_thread.start(callback(&res_queue, &EventQueue::dispatch_forever));
+    res_queue.call_every(2000, update_resources);
 
     while(cloud_client_running) {
         int in_char = getchar();
@@ -255,14 +355,21 @@ int main(void)
             print_client_ids(); // When 'i' is pressed, print endpoint info
             continue;
         } else if (in_char == 'r') {
-            (void) fcc_storage_delete(); // When 'r' is pressed, erase storage and reboot the board.
-            printf("Storage erased, rebooting the device.\n\n");
-            wait(1);
+             // When 'r' is pressed, erase storage and reboot the board.            
+            printf("Reset storage to an empty state.\n");
+            int fcc_status = fcc_storage_delete();
+            if (fcc_status != FCC_STATUS_SUCCESS) {
+                printf("Failed to delete storage - %d\n", status);
+                return -1;
+            }
+            printf("Reset storage done...Reseting device.\n");
+            ThisThread::sleep_for(10000);
             NVIC_SystemReset();
-        } else if (in_char > 0 && in_char != 0x03) { // Ctrl+C is 0x03 in Mbed OS and Linux returns negative number
+        } else if (in_char > 0 && in_char != 0x18) { // Ctrl+X is 0x18
             button_press(); // Simulate button press
             continue;
         }
+        // if Ctrl+X, then reach this point and trigger deregister
         deregister_client();
         break;
     }
