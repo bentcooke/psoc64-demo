@@ -24,11 +24,7 @@
 
 #include "mbed-trace/mbed_trace.h"             // Required for mbed_trace_*
 
-#define EINK_DISPLAY 1
-
-#ifdef EINK_DISPLAY
-  #include "eink_display_app.h"
-#endif
+#include "eink_display_app.h"
 #include "app_version.h"
 #include "cypress_capsense.h"
 #include "blinker_app.h"

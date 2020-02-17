@@ -1,6 +1,9 @@
 #ifndef __EINK_DISPLAY_APP__
 #define __EINK_DISPLAY_APP__
 
+/* include / exclude e-ink display capabilities with this macro */
+#define EINK_DISPLAY 1
+
 enum pelion_state_t {
 	CONNECTING, 
 	CONNECTED,
