@@ -23,8 +23,7 @@ uint8_t get_wifi_credentials(char *ssid_return_buf, char *pswd_return_buf)
      kcm_status_e status;
      kcm_status_e status2;
  
-     //#ifdef RESET_STORAGE
-      #if 1
+     #ifdef RESET_STORAGE
          // if about to reset the storage anyway, then just get user input, but don't save it
          // this allows the system to connect the wifi if the credentials are corrupted in 
          // the storage
