@@ -78,7 +78,7 @@ void execute_post(void* /*arguments*/)
 
 void deregister_client(void)
 {
-  #ifdef EINK_DISPLAY
+  #if EINK_DISPLAY
     set_pelion_state(DEREGISTERED);
   #endif
     printf("Unregistering and disconnecting from the network.\n");
@@ -95,7 +95,7 @@ void deregister(void* /*arguments*/)
 
 void client_registered(void)
 {
-  #ifdef EINK_DISPLAY  
+  #if EINK_DISPLAY  
     set_pelion_state(REGISTERED);
   #endif
     printf("Client registered.\n");
@@ -127,7 +127,7 @@ void update_progress(uint32_t progress, uint32_t total)
     }
     if((percent == 1) & (start_flag == 0)) 
     {
-      #ifdef EINK_DISPLAY
+      #if EINK_DISPLAY
         set_pelion_state(DOWNLOADING);
       #endif
         start_flag = 1;
@@ -150,7 +150,7 @@ int main(void)
         return -1;
     }
 
-  #ifdef EINK_DISPLAY
+  #if EINK_DISPLAY
     status = eink_display_app_start();
     if (status != 0) {
         printf("eink display init failed with %d\n", status);
@@ -159,7 +159,7 @@ int main(void)
   #endif 
    
     printf("App Version = %d.%d.%d\n\r", APP_VERSION_MAJOR, APP_VERSION_MINOR, APP_VERSION_PATCH);
-#ifdef EINK_DISPLAY
+#if EINK_DISPLAY
     set_fw_version(APP_VERSION_MAJOR, APP_VERSION_MINOR, APP_VERSION_PATCH);
 
     set_pelion_state(CONNECTING);
@@ -173,7 +173,7 @@ int main(void)
         return -1;
     }
 
-  #ifdef EINK_DISPLAY
+  #if EINK_DISPLAY
     set_pelion_state(CONNECTING);
   #endif
     status = get_wifi_credentials(ssid_buf, pswd_buf);
@@ -225,7 +225,7 @@ int main(void)
         return -1;
     }
    
-  #ifdef EINK_DISPLAY
+  #if EINK_DISPLAY
    set_pelion_state(CONNECTED);
   #endif
     printf("Network initialized, connected with IP [%s]\n\n", network->get_ip_address());

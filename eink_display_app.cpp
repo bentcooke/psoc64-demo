@@ -2,7 +2,7 @@
 #include "blinker_app.h"
 #include "eink_display_app.h"
 
-#ifdef EINK_DISPLAY
+#if EINK_DISPLAY
 
 #include "GUI.h"
 #include "pervasive_eink_hardware_driver.h"
