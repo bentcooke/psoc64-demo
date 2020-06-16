@@ -30,7 +30,9 @@
 #include "blinker_app.h"
 #include "wifi_credential_handler.h"
 
-#if defined(TARGET_CY8CKIT_064S2_4343W) && !defined(DISABLE_CY_FACTORY_FLOW)
+#define APP_USE_CAPSENSE 0
+
+#if (defined(TARGET_CY8CKIT_064S2_4343W) || defined(TARGET_CYESKIT_064B0S2_4343W)) && !defined(DISABLE_CY_FACTORY_FLOW)
     extern "C" fcc_status_e cy_factory_flow(void);
 #endif
 
@@ -228,7 +230,15 @@ int main(void)
   #if EINK_DISPLAY
    set_pelion_state(CONNECTED);
   #endif
-    printf("Network initialized, connected with IP [%s]\n\n", network->get_ip_address());
+
+ SocketAddress addr;
+    status = network->get_ip_address(&addr);
+    if (status != NSAPI_ERROR_OK) {
+        printf("NetworkInterface failed to get IP address %d\n", status);
+        return -1;
+    } 
+
+ printf("Network initialized, connected with IP %s\n\n",addr.get_ip_address());
 
 #if defined(DISABLE_CY_FACTORY_FLOW)
     // Run developer flow
@@ -269,11 +279,13 @@ int main(void)
 #endif
     printf("Initializing Capacitive Touch Sensors\n");
 
+#if APP_USE_CAPSENSE
     if(capsense_main() != 0)
     {
         printf("Capacitive Touch Sensors failed to initialize \n");
         return -1;
     }
+#endif
 
     blinker_start();
 

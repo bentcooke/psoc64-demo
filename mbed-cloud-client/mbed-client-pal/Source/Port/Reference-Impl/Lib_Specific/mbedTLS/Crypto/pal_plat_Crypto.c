@@ -43,7 +43,7 @@
 #endif
 
 
-#if defined(TARGET_CY8CKIT_064S2_4343W) && !defined(DISABLE_CY_FACTORY_FLOW)
+#if (defined(TARGET_CY8CKIT_064S2_4343W) || defined(TARGET_CYESKIT_064B0S2_4343W)) && !defined(DISABLE_CY_FACTORY_FLOW)
 #include "mbedtls/pk_internal.h"
 #include "fb_crypto.h"
 #include "flashboot_psacrypto.h"
@@ -1217,7 +1217,7 @@ palStatus_t pal_plat_CtrDRBGIsSeeded(palCtrDrbgCtxHandle_t ctx)
     {
         return PAL_SUCCESS;
     }
-    else if (palCtrDrbgCtx->ctrDrbgCtx.reseed_counter == 0)
+    else if (palCtrDrbgCtx->ctrDrbgCtx.reseed_counter == -1)
     {
         return PAL_ERR_CTR_DRBG_NOT_SEEDED;
     }
@@ -1802,7 +1802,7 @@ PAL_PRIVATE palStatus_t pal_plat_pkMbedtlsToPalError(int32_t platStatus)
 
 }
 
-#if defined(TARGET_CY8CKIT_064S2_4343W) && !defined(DISABLE_CY_FACTORY_FLOW)
+#if (defined(TARGET_CY8CKIT_064S2_4343W) || defined(TARGET_CYESKIT_064B0S2_4343W)) && !defined(DISABLE_CY_FACTORY_FLOW)
 
 static void *pal_se_pk_alloc_wrap( void )
 {
@@ -1902,7 +1902,7 @@ palStatus_t pal_plat_parseECPrivateKeyFromDER(const unsigned char* prvDERKey, si
     palECKey_t* localECKey = (palECKey_t*)key;
     palStatus_t status = PAL_SUCCESS;
 
-#if defined(TARGET_CY8CKIT_064S2_4343W) && !defined(DISABLE_CY_FACTORY_FLOW)
+#if (defined(TARGET_CY8CKIT_064S2_4343W) || defined(TARGET_CYESKIT_064B0S2_4343W)) && !defined(DISABLE_CY_FACTORY_FLOW)
     extern const char g_fcc_bootstrap_device_private_key_name[];
     if (memcmp(prvDERKey, g_fcc_bootstrap_device_private_key_name, keyLen) == 0) {
         platStatus = mbedtls_pk_setup(localECKey, &pal_se_pk_info);

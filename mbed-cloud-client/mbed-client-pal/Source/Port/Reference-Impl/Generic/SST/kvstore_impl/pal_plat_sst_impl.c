@@ -117,20 +117,20 @@ palStatus_t pal_SSTSet(const char *itemName, const void *itemBuffer, size_t item
     char sst_complete_item_name[KV_MAX_KEY_LENGTH + 1]; //extra byte for null termination
 
     //these bitmask is for unused bits in SSTFlagsBitmap.
-    //only PAL_SST_WRITE_ONCE_FLAG, PAL_SST_CONFIDENTIALITY_FLAG and PAL_SST_REPLAY_PROTECTION_FLAG used  
+    //only PAL_SST_WRITE_ONCE_FLAG, PAL_SST_CONFIDENTIALITY_FLAG and PAL_SST_REPLAY_PROTECTION_FLAG used
     uint32_t sst_flag_unused_bits_mask = ~(PAL_SST_WRITE_ONCE_FLAG | PAL_SST_CONFIDENTIALITY_FLAG | PAL_SST_REPLAY_PROTECTION_FLAG);
 
     //arguments validation
     PAL_VALIDATE_ARGUMENTS((NULL == itemName) || ((NULL == itemBuffer) && (itemBufferSize > 0)) || ((SSTFlagsBitmap & sst_flag_unused_bits_mask) != 0));
 
-#if defined(TARGET_CY8CKIT_064S2_4343W) && !defined(DISABLE_CY_FACTORY_FLOW)
+#if (defined(TARGET_CY8CKIT_064S2_4343W) || defined(TARGET_CYESKIT_064B0S2_4343W)) && !defined(DISABLE_CY_FACTORY_FLOW)
     extern const char g_fcc_bootstrap_device_private_key_name[];
     if (strstr(itemName, g_fcc_bootstrap_device_private_key_name)) {
         return PAL_ERR_SST_WRITE_PROTECTED;
     }
 #endif
 
-    //allocate buffer for itemName + prefix and copy prefix to the new buffer    
+    //allocate buffer for itemName + prefix and copy prefix to the new buffer
     pal_status = pal_sst_build_complete_name(itemName, sst_complete_item_name);
     if (pal_status != PAL_SUCCESS) {
         PAL_LOG_ERR("pal_SSTSet: 0x%" PRIx32 "", pal_status);
@@ -164,7 +164,7 @@ palStatus_t pal_SSTGet(const char *itemName, void *itemBuffer, size_t itemBuffer
     //arguments validation
     PAL_VALIDATE_ARGUMENTS((NULL == itemName) || ((NULL == itemBuffer) && (itemBufferSize > 0)) || (NULL == actualItemSize));
 
-#if defined(TARGET_CY8CKIT_064S2_4343W) && !defined(DISABLE_CY_FACTORY_FLOW)
+#if (defined(TARGET_CY8CKIT_064S2_4343W) || defined(TARGET_CYESKIT_064B0S2_4343W)) && !defined(DISABLE_CY_FACTORY_FLOW)
     extern const char g_fcc_bootstrap_device_private_key_name[];
     size_t name_len = strlen(g_fcc_bootstrap_device_private_key_name);
     if (strstr(itemName, g_fcc_bootstrap_device_private_key_name)) {
@@ -177,7 +177,7 @@ palStatus_t pal_SSTGet(const char *itemName, void *itemBuffer, size_t itemBuffer
     }
 #endif
 
-    //allocate buffer for itemName + prefix and copy prefix to the new buffer    
+    //allocate buffer for itemName + prefix and copy prefix to the new buffer
     pal_status = pal_sst_build_complete_name(itemName, sst_complete_item_name);
     if (pal_status != PAL_SUCCESS) {
         PAL_LOG_ERR("pal_SSTGet returned: 0x%" PRIx32 "", pal_status);
@@ -201,7 +201,7 @@ palStatus_t pal_SSTGetInfo(const char *itemName, palSSTItemInfo_t *palItemInfo)
     //arguments validation
     PAL_VALIDATE_ARGUMENTS((NULL == itemName) || (NULL == palItemInfo));
 
-#if defined(TARGET_CY8CKIT_064S2_4343W) && !defined(DISABLE_CY_FACTORY_FLOW)
+#if (defined(TARGET_CY8CKIT_064S2_4343W) || defined(TARGET_CYESKIT_064B0S2_4343W)) && !defined(DISABLE_CY_FACTORY_FLOW)
     extern const char g_fcc_bootstrap_device_private_key_name[];
     if (strstr(itemName, g_fcc_bootstrap_device_private_key_name)) {
         palItemInfo->SSTFlagsBitmap = PAL_SST_REPLAY_PROTECTION_FLAG;
@@ -210,7 +210,7 @@ palStatus_t pal_SSTGetInfo(const char *itemName, palSSTItemInfo_t *palItemInfo)
     }
 #endif
 
-    //allocate buffer for itemName + prefix and copy prefix to the new buffer    
+    //allocate buffer for itemName + prefix and copy prefix to the new buffer
     pal_status = pal_sst_build_complete_name(itemName, sst_complete_item_name);
     if (pal_status != PAL_SUCCESS) {
         PAL_LOG_ERR("pal_SSTGetInfo returned: 0x%" PRIx32 "", pal_status);
@@ -251,14 +251,14 @@ palStatus_t pal_SSTRemove(const char *itemName)
     //arguments validation
     PAL_VALIDATE_ARGUMENTS((NULL == itemName));
 
-#if defined(TARGET_CY8CKIT_064S2_4343W) && !defined(DISABLE_CY_FACTORY_FLOW)
+#if (defined(TARGET_CY8CKIT_064S2_4343W) || defined(TARGET_CYESKIT_064B0S2_4343W)) && !defined(DISABLE_CY_FACTORY_FLOW)
     extern const char g_fcc_bootstrap_device_private_key_name[];
     if (strstr(itemName, g_fcc_bootstrap_device_private_key_name)) {
         return PAL_ERR_SST_WRITE_PROTECTED;
     }
 #endif
 
-    //allocate buffer for itemName + prefix and copy prefix to the new buffer    
+    //allocate buffer for itemName + prefix and copy prefix to the new buffer
     pal_status = pal_sst_build_complete_name(itemName, sst_complete_item_name);
     if (pal_status != PAL_SUCCESS) {
         PAL_LOG_ERR("pal_SSTRemove returned: 0x%" PRIx32 "", pal_status);
@@ -281,7 +281,7 @@ palStatus_t pal_SSTIteratorOpen(palSSTIterator_t *palSSTIterator, const char *it
     //arguments validation
     PAL_VALIDATE_ARGUMENTS((NULL == palSSTIterator));
 
-    //allocate buffer for itemName + prefix and copy prefix to the new buffer    
+    //allocate buffer for itemName + prefix and copy prefix to the new buffer
     pal_status = pal_sst_build_complete_name(itemPrefix, sst_complete_item_prefix);
     if (pal_status != PAL_SUCCESS) {
         PAL_LOG_ERR("pal_SSTIteratorOpen returned: 0x%" PRIx32 "", pal_status);
@@ -341,4 +341,3 @@ palStatus_t pal_SSTReset()
 }
 
 #endif
-

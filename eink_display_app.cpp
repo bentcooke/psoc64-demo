@@ -99,39 +99,39 @@ void ShowPelionState(pelion_state_t state)
     char fw_ver_str[20];
 
 		snprintf(fw_ver_str, 20, "FW Version %s ", version_str);
-    	  
+
 	  switch(state){
 			case CONNECTING:
-				snprintf(state_str, 12, "%s", "CONNECTING  "); 			
-				break;			
+				snprintf(state_str, 12, "%s", "CONNECTING  ");
+				break;
 			case CONNECTED:
 				snprintf(state_str, 12, "%s", "CONNECTED   ");
-				break;			
+				break;
 			case REGISTERED:
 				snprintf(state_str, 12, "%s", "REGISTERED  ");
-				break;					
+				break;
 			case REQUESTED:
 				snprintf(state_str, 12, "%s", "REQUESTED   ");
-				break;					
+				break;
 			case PROCESSING:
 				snprintf(state_str, 12, "%s", "PROCESSING  ");
-				break;					
+				break;
 			case DOWNLOADING:
 				snprintf(state_str, 12, "%s", "DOWNLOADING ");
-				break;					
+				break;
 			case INSTALLING:
 				snprintf(state_str, 12, "%s", "INSTALLING  ");
-				break;					
+				break;
 			case COMPLETE:
 				snprintf(state_str, 12, "%s", "COMPLETE    ");
 				break;
       case DEREGISTERED:
 				snprintf(state_str, 12, "%s", "DEREGISTERED");
-				break;        					
+				break;
 			default:
 				snprintf(state_str, 12, "%s", "AMUSED      ");
     }
-	
+
     /* Set font size, background color and text mode */
     GUI_SetFont(GUI_FONT_24_1);
     GUI_SetBkColor(GUI_BLACK);
@@ -157,21 +157,21 @@ void ShowPelionState(pelion_state_t state)
 
     /* Font32_1*/
     GUI_SetFont(GUI_FONT_32_1);
-    GUI_SetTextAlign(GUI_TA_HCENTER);	
+    GUI_SetTextAlign(GUI_TA_HCENTER);
     GUI_DispStringAt(state_str, 132, 97);
-	
+
 /*    if(state == DOWNLOADING)
     {
       GUI_SetFont(GUI_FONT_32_1);
-      GUI_SetTextAlign(GUI_TA_RIGHT);	
+      GUI_SetTextAlign(GUI_TA_RIGHT);
       GUI_DispStringAt(update_percent_str, 250, 97);
     }
-*/  
+*/
     /* Font24_1*/
     GUI_SetFont(GUI_FONT_24_1);
     GUI_SetTextAlign(GUI_TA_HCENTER);
     GUI_DispStringAt(fw_ver_str, 132, 144);
-  
+
     //
     //UpdateDisplay(CY_EINK_FULL_4STAGE, true);
     UpdateDisplay(CY_EINK_FULL_2STAGE, true);
@@ -207,33 +207,32 @@ void ClearScreen(void)
 *****************************************************************************/
 
 int eink_display_app_start()
-{   
-  
+{
+
     //leds_test();
 
     /* start the blinker thread */
-		blinker_start();  
-    
+		blinker_start();
+
     /* Initialize EmWin driver*/
     GUI_Init();
-    
+
     /* Initialize EInk Controller */
-    Cy_EINK_Start(15u, wait_ms);
-    //Cy_EINK_Start(15u, ThisThread::sleep_for);
-        
+    Cy_EINK_Start(15u,(cy_eink_delay_function_t)thread_sleep_for);
+
     /* Power on the display and check the status of the operation */
     if (Cy_EINK_Power(CY_EINK_ON) == CY_EINK_SUCCESS)
     {
         /* If powering of EINK display successful, continue with the demo */
         ShowStartupScreen();
         ThisThread::sleep_for(2000);
-				return 0;	
+				return 0;
 		}else{
 			  /*return error*/
 			  return 1;
-		}		
+		}
 }
-        
+
 
 void set_pelion_state(pelion_state_t state)
 {
@@ -243,63 +242,63 @@ void set_pelion_state(pelion_state_t state)
       ShowPelionState(CONNECTING);
       blinker_color_set(LED_COLOR_GREEN);
       blinker_rate_set(4);
-      blinker_mode_set(BLINKER_MODE_BLINKING);  
-      break;			
+      blinker_mode_set(BLINKER_MODE_BLINKING);
+      break;
     case CONNECTED:
       ShowPelionState(CONNECTED);
       blinker_color_set(LED_COLOR_GREEN);
-      blinker_mode_set(BLINKER_MODE_SOLID);  
-      break;			
+      blinker_mode_set(BLINKER_MODE_SOLID);
+      break;
     case REGISTERED:
       ShowPelionState(REGISTERED);
       blinker_color_set(LED_COLOR_BLUE);
-      blinker_mode_set(BLINKER_MODE_SOLID);  
-      break;					
+      blinker_mode_set(BLINKER_MODE_SOLID);
+      break;
     case REQUESTED:
       ShowPelionState(REQUESTED);
-      blinker_color_set(LED_COLOR_BLUE);		
+      blinker_color_set(LED_COLOR_BLUE);
       blinker_rate_set(4);
-      blinker_mode_set(BLINKER_MODE_BLINKING);  
-      break;					
+      blinker_mode_set(BLINKER_MODE_BLINKING);
+      break;
     case PROCESSING:
       ShowPelionState(PROCESSING);
-      blinker_color_set(LED_COLOR_BLUE);		
+      blinker_color_set(LED_COLOR_BLUE);
       blinker_rate_set(5);
-      blinker_mode_set(BLINKER_MODE_BLINKING);  
-      break;					
+      blinker_mode_set(BLINKER_MODE_BLINKING);
+      break;
     case DOWNLOADING:
       ShowPelionState(DOWNLOADING);
-      blinker_color_set(LED_COLOR_CYAN);		
-      blinker_rate_set(5);		
-      blinker_mode_set(BLINKER_MODE_BLINKING);  
-      break;					
+      blinker_color_set(LED_COLOR_CYAN);
+      blinker_rate_set(5);
+      blinker_mode_set(BLINKER_MODE_BLINKING);
+      break;
     case INSTALLING:
       ShowPelionState(INSTALLING);
-      blinker_color_set(LED_COLOR_CYAN);		
-      blinker_rate_set(5);		
+      blinker_color_set(LED_COLOR_CYAN);
+      blinker_rate_set(5);
       blinker_mode_set(BLINKER_MODE_BLINKING);
-      break;					
+      break;
     case COMPLETE:
       ShowPelionState(COMPLETE);
       blinker_color_set(LED_COLOR_GREEN);
-      blinker_mode_set(BLINKER_MODE_SOLID);  
-      break;					
+      blinker_mode_set(BLINKER_MODE_SOLID);
+      break;
       case DEREGISTERED:
         ShowPelionState(DEREGISTERED);
         blinker_color_set(LED_COLOR_GREEN);
-        blinker_mode_set(BLINKER_MODE_BLINKING);  
-        break;					      
+        blinker_mode_set(BLINKER_MODE_BLINKING);
+        break;
     default:
       ShowPelionState(COMPLETE);
       blinker_color_set(LED_COLOR_GREEN);
       blinker_mode_set(BLINKER_MODE_SOLID);
   }
-  
+
 }
 
 void set_pelion_download_percent(uint8_t p)
 {
-    snprintf(update_percent_str, 4, "%2d", p);  
+    snprintf(update_percent_str, 4, "%2d", p);
 }
 
 void set_fw_version(uint8_t maj, uint8_t min, uint8_t pat)

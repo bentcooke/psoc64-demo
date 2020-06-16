@@ -2,10 +2,10 @@
 #define __EINK_DISPLAY_APP__
 
 /* include / exclude e-ink display capabilities with this macro */
-#define EINK_DISPLAY 1
+#define EINK_DISPLAY 0
 
 enum pelion_state_t {
-	CONNECTING, 
+	CONNECTING,
 	CONNECTED,
 	REGISTERED,
 	REQUESTED,
@@ -14,7 +14,7 @@ enum pelion_state_t {
 	INSTALLING,
 	COMPLETE,
 	DEREGISTERED
-}; 
+};
 
 /* Function prototypes */
 int eink_display_app_start(void);
