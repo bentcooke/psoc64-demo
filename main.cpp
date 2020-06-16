@@ -26,8 +26,11 @@
 
 #include "eink_display_app.h"
 #include "app_version.h"
+#include "cypress_capsense.h"
 #include "blinker_app.h"
 #include "wifi_credential_handler.h"
+
+#define APP_USE_CAPSENSE 1
 
 #if (defined(TARGET_CY8CKIT_064S2_4343W) || defined(TARGET_CYESKIT_064B0S2_4343W)) && !defined(DISABLE_CY_FACTORY_FLOW)
     extern "C" fcc_status_e cy_factory_flow(void);
@@ -46,11 +49,11 @@ static M2MResource* m2m_get_res_led_rate_max;
 static M2MResource* m2m_put_res;
 static M2MResource* m2m_post_res;
 static M2MResource* m2m_deregister_res;
-
+  
 Thread res_thread;
 EventQueue res_queue;
 char ssid_buf[40];
-char pswd_buf[40];
+char pswd_buf[40];     
 
 void print_client_ids(void)
 {
@@ -94,7 +97,7 @@ void deregister(void* /*arguments*/)
 
 void client_registered(void)
 {
-  #if EINK_DISPLAY
+  #if EINK_DISPLAY  
     set_pelion_state(REGISTERED);
   #endif
     printf("Client registered.\n");
@@ -116,15 +119,15 @@ void client_error(int err)
 void update_progress(uint32_t progress, uint32_t total)
 {
     static uint8_t start_flag;
-
+    
     uint8_t percent = (uint8_t)((uint64_t)progress * 100 / total);
     printf("Update progress = %" PRIu8 "%%\n", percent);
-
+    
     if(percent == 0)
     {
       start_flag = 0;
     }
-    if((percent == 1) & (start_flag == 0))
+    if((percent == 1) & (start_flag == 0)) 
     {
       #if EINK_DISPLAY
         set_pelion_state(DOWNLOADING);
@@ -155,15 +158,15 @@ int main(void)
         printf("eink display init failed with %d\n", status);
         return -1;
     }
-  #endif
-
+  #endif 
+   
     printf("App Version = %d.%d.%d\n\r", APP_VERSION_MAJOR, APP_VERSION_MINOR, APP_VERSION_PATCH);
 #if EINK_DISPLAY
     set_fw_version(APP_VERSION_MAJOR, APP_VERSION_MINOR, APP_VERSION_PATCH);
 
     set_pelion_state(CONNECTING);
-#endif
-
+#endif 
+     
     // Mount default kvstore
     printf("Application ready\n");
     status = kv_init_storage_config();
@@ -183,7 +186,7 @@ int main(void)
        printf("\n\r");
        printf("SSID: %s\r\n",ssid_buf);
        printf("PASSWORD: ");
-       for(int p=0;p<strlen(pswd_buf); p++) {
+       for(int p=0;p<strlen(pswd_buf); p++) { 
          //print * for the number of password characters
          printf("*");
        }
@@ -223,7 +226,7 @@ int main(void)
         }
         return -1;
     }
-
+   
   #if EINK_DISPLAY
    set_pelion_state(CONNECTED);
   #endif
@@ -233,7 +236,7 @@ int main(void)
     if (status != NSAPI_ERROR_OK) {
         printf("NetworkInterface failed to get IP address %d\n", status);
         return -1;
-    }
+    } 
 
  printf("Network initialized, connected with IP %s\n\n",addr.get_ip_address());
 
@@ -275,6 +278,14 @@ int main(void)
     }
 #endif
     printf("Initializing Capacitive Touch Sensors\n");
+
+#if APP_USE_CAPSENSE
+    if(capsense_main() != 0)
+    {
+        printf("Capacitive Touch Sensors failed to initialize \n");
+        return -1;
+    }
+#endif
 
     blinker_start();
 
@@ -354,7 +365,7 @@ int main(void)
             print_client_ids(); // When 'i' is pressed, print endpoint info
             continue;
         } else if (in_char == 'r') {
-             // When 'r' is pressed, erase storage and reboot the board.
+             // When 'r' is pressed, erase storage and reboot the board.            
             printf("Reset storage to an empty state.\n");
             int fcc_status = fcc_storage_delete();
             if (fcc_status != FCC_STATUS_SUCCESS) {
