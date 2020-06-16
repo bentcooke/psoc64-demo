@@ -909,7 +909,7 @@ palStatus_t pal_plat_setOwnPrivateKey(palTLSConfHandle_t palTLSConf, palPrivateK
 
 #else //MBED_CONF_MBED_CLOUD_CLIENT_PSA_SUPPORT
 
-#if defined(TARGET_CY8CKIT_064S2_4343W) && !defined(DISABLE_CY_FACTORY_FLOW)
+#if (defined(TARGET_CY8CKIT_064S2_4343W) || defined(TARGET_CYESKIT_064B0S2_4343W)) && !defined(DISABLE_CY_FACTORY_FLOW)
     extern const mbedtls_pk_info_t pal_se_pk_info;
 
     extern const char g_fcc_bootstrap_device_private_key_name[];

@@ -20,7 +20,7 @@
 #if !defined(FB_CRYPTO_H_)
 #define FB_CRYPTO_H_
 
-#include "../mbed-os/features/mbedtls/mbed-crypto/inc/psa/crypto.h"
+#include "../mbed-os/features/mbedtls/inc/psa/crypto.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -141,7 +141,7 @@ psa_status_t cipher_operation( psa_cipher_operation_t *operation,
 
 typedef uint32_t cy_key_slot_t;
 
-		
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

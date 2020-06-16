@@ -14,7 +14,7 @@
 // limitations under the License.
 // ----------------------------------------------------------------------------
 
-#if defined(TARGET_CY8CKIT_064S2_4343W) && !defined(DISABLE_CY_FACTORY_FLOW)
+#if (defined(TARGET_CY8CKIT_064S2_4343W) || defined(TARGET_CYESKIT_064B0S2_4343W)) && !defined(DISABLE_CY_FACTORY_FLOW)
 
 #include "factory_configurator_client.h"
 #include "key_config_manager.h"
@@ -36,7 +36,7 @@ static const char MBED_CLOUD_BOOTSTRAP_SERVER_URI[] = "coaps://bootstrap.us-east
 // bootstrap device certificate (place holder to read the certificate)
 static uint8_t BOOTSTRAP_DEVICE_CERTIFICATE[DEVICE_CERT_MAX_LEN];
 //bootstrap server root ca certificate
-static const uint8_t MBED_CLOUD_BOOTSTRAP_SERVER_ROOT_CA_CERTIFICATE[] = 
+static const uint8_t MBED_CLOUD_BOOTSTRAP_SERVER_ROOT_CA_CERTIFICATE[] =
 { 0x30, 0x82, 0x02, 0x1F, 0x30, 0x82, 0x01, 0xC5, 0xA0, 0x03, 0x02, 0x01, 0x02, 0x02, 0x10, 0x3C, 0x63, 0x38, 0x70, 0x08, 0xD3, 0xC9, 0x8A, 0x4C,
   0x72, 0x1F, 0x8F, 0x45, 0xEB, 0xD8, 0xF3, 0x30, 0x0A, 0x06, 0x08, 0x2A, 0x86, 0x48, 0xCE, 0x3D, 0x04, 0x03, 0x02, 0x30, 0x67, 0x31, 0x0B, 0x30,
   0x09, 0x06, 0x03, 0x55, 0x04, 0x06, 0x13, 0x02, 0x47, 0x42, 0x31, 0x17, 0x30, 0x15, 0x06, 0x03, 0x55, 0x04, 0x08, 0x13, 0x0E, 0x43, 0x61, 0x6D,
@@ -126,7 +126,7 @@ static int read_device_cert(uint8_t *derCert, size_t derCertMaxSize, size_t *der
     char *pemCertBuff = NULL;
     size_t pemCertBuffLen = DEVICE_CERT_MAX_LEN;
     uint8_t certNum = DEVICE_CERT_INDEX;
-    
+
     *derCertSizeOut = 0;
 
     pemCertBuff = (char *)malloc(pemCertBuffLen);
@@ -145,7 +145,7 @@ static int read_device_cert(uint8_t *derCert, size_t derCertMaxSize, size_t *der
     }
 
     /* Parse provisioning packet, find chain_of_trust token and get certificate from it with a certNum index */
-    rc = Cy_JWT_ParseProvisioningPacket(jwt, pemCertBuff, pemCertBuffLen, certNum); 
+    rc = Cy_JWT_ParseProvisioningPacket(jwt, pemCertBuff, pemCertBuffLen, certNum);
     if(0 != rc) {
         printf("[ERR] Cy_JWT_ParseProvisioningPacket failed with code %i", rc);
         goto exit;
@@ -201,7 +201,17 @@ Exit:
     return kcm_status;
 }
 
-/* Calc device Enrollment ID string from device certificate 
+static char convert2hexdigit(uint8_t ui8)
+{
+    if (ui8 <= 0x9) {
+        return ('0' + ui8);
+    }
+    else {
+        return ('A' + (ui8 - 0xA));
+    }
+}
+
+/* Calc device Enrollment ID string from device certificate
  *   "A-" for version number followed by sha256 of the certiifcate
  *   Example: A-AD:1E:CE:37:C9:A1:76:6F:C0:13:AD:91:29:41:3E:27:83:97:4A:42:4C:71:B7:F0:A4:B1:72:E4:03:18:B6:30 */
 static kcm_status_e get_device_enrollment_id(const uint8_t *cert, size_t cert_size, char *fingerprint, size_t fingerprint_size)
@@ -216,14 +226,17 @@ static kcm_status_e get_device_enrollment_id(const uint8_t *cert, size_t cert_si
     // start with version bytes
     fingerprint[0] = 'A';
     fingerprint[1] = '-';
-    
+    fingerprint += 2;
+
     // convert cert hash to hex ascii representation separated with semicolons
-    for(int i=0; i < PAL_SHA256_SIZE; i++) {
-        sprintf(&fingerprint[2] + i * 3, "%02X:", cert_hash[i]);
+    for(int i=0; i < PAL_SHA256_SIZE; i++, fingerprint += 3) {
+        fingerprint[0] = convert2hexdigit(cert_hash[i] >> 4);
+        fingerprint[1] = convert2hexdigit(cert_hash[i] & 0xF);
+        fingerprint[2] = ':';
     }
 
     // chop last ":"
-    fingerprint[fingerprint_size - 1] = '\0';
+    fingerprint[-1] = '\0';
 
     return KCM_STATUS_SUCCESS;
 }
@@ -297,8 +310,8 @@ fcc_status_e cy_factory_flow(void)
     SA_PV_ERR_RECOVERABLE_RETURN_IF((fcc_status != FCC_STATUS_SUCCESS), fcc_status, "Failed to set ca certificate identifier");
 
     // get and print device Enrollment ID
-    char cert_fingerprint[2 + PAL_SHA256_SIZE*3] = { 0 }; // 2 bytes for version format + sha256 of device cert in hexadecimal ascii format. Each byte separated with colon    
-    kcm_status = get_device_enrollment_id(BOOTSTRAP_DEVICE_CERTIFICATE, cert_size, 
+    char cert_fingerprint[2 + PAL_SHA256_SIZE*3] = { 0 }; // 2 bytes for version format + sha256 of device cert in hexadecimal ascii format. Each byte separated with colon
+    kcm_status = get_device_enrollment_id(BOOTSTRAP_DEVICE_CERTIFICATE, cert_size,
                                                     cert_fingerprint, sizeof(cert_fingerprint));
     SA_PV_ERR_RECOVERABLE_RETURN_IF((kcm_status != KCM_STATUS_SUCCESS), FCC_STATUS_ERROR, "Failed to extract Enrollment ID from provisioned device certificate");
 

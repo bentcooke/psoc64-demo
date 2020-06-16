@@ -82,7 +82,7 @@ GUI_TIMER_TIME GUI_X_GetTime(void)
 
 void GUI_X_Delay(int ms)
 {
-  wait_ms(ms);
+  ThisThread::sleep_for(ms);
 }
 
 /*********************************************************************
@@ -92,7 +92,7 @@ void GUI_X_Delay(int ms)
 */
 void GUI_X_ExecIdle(void)
 {
-  wait_ms(1);
+  ThisThread::sleep_for(1);
 }
 
 /*********************************************************************
