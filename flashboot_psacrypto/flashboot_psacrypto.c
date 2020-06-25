@@ -2,7 +2,7 @@
  *
  */
 
-#if defined(TARGET_CY8CKIT_064S2_4343W)
+#if defined(TARGET_CY8CKIT_064S2_4343W) || defined(TARGET_CYESKIT_064B0S2_4343W)
 #include <inttypes.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -12,7 +12,7 @@
 #include "cy_syslib.h"
 #include "cy_ipc_drv.h"
 
-#include "../mbed-os/features/mbedtls/mbed-crypto/inc/psa/crypto.h"
+#include "../mbed-os/features/mbedtls/inc/psa/crypto.h"
 #include "flashboot_psacrypto.h"
 
 /* C binding of definitions if building with C++ compiler */

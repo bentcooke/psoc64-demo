@@ -48,7 +48,7 @@
 #define _FLASHBOOT_PSACRYPTO_H_
 
 #include "fb_crypto.h"
-#include "../mbed-os/features/mbedtls/mbed-crypto/inc/psa/crypto.h"
+#include "../mbed-os/features/mbedtls/inc/psa/crypto.h"
 
 #if defined(__cplusplus)
 extern "C" {
@@ -164,7 +164,7 @@ psa_status_t fb_keys_open_key(cy_key_slot_t key_id, psa_key_handle_t *handle);
 
 psa_status_t fb_keys_close_key(cy_key_slot_t key_id);
 
-		
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

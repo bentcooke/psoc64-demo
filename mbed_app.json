@@ -10,7 +10,7 @@
         "EINK_DISPEN":      "EINK_DISPEN",
         "EINK_BORDER":      "EINK_BORDER",
         "EINK_DISPIOEN":    "EINK_DISPIOEN"
-    },  
+    },
     "macros": [
         "MBED_TRACE_MAX_LEVEL=TRACE_LEVEL_INFO",
         "MBED_CLIENT_USER_CONFIG_FILE=\"mbed_cloud_client_user_config.h\"",
@@ -158,13 +158,13 @@
         },
         "CY8CPROTO_062_4343W": {
             "target.macros_add"                         : ["MBEDTLS_USER_CONFIG_FILE=\"mbedTLSConfig_mbedOS.h\"", "MBED_BOOTLOADER_SIZE=(48*1024)", "ARM_UC_USE_PAL_BLOCKDEVICE=0"],
-            "target.network-default-interface-type"     : "WIFI",            
+            "target.network-default-interface-type"     : "WIFI",
             "target.bootloader_img"                     : "bootloader/mbed-bootloader_cy8cproto.hex",
             "target.header_offset"                      : "0x0000C000",
             "target.app_offset"                         : "0x0000C400",
             "update-client.bootloader-details"          : "0x10009C8C",
             "update-client.application-details"         : "0x1000C000",
-            "update-client.storage-address"             : "0x10110000",      
+            "update-client.storage-address"             : "0x10110000",
             "update-client.storage-size"                : "0x000F0000",
             "update-client.storage-locations"           : 1,
             "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP",
@@ -175,42 +175,22 @@
             "target.mbed_rom_start"                     : "0x10000000",
             "target.mbed_rom_size"                      : "0x00200000",
             "target.sectors"                            : [[268435456, 512]],
-            "target.extra_labels_remove"                : ["CM0P_SLEEP"]         
+            "target.extra_labels_remove"                : ["CM0P_SLEEP"]
         },
-        "CY8CKIT_064S2_4343W": {
-            "target.features_remove": ["BLE"],
-            "target.device_has_remove": [
-                "ANALOGIN",
-                "ANALOGOUT",
-                "CRC",
-                "I2C",
-                "I2C_ASYNCH",
-                "I2CSLAVE",
-                "PORTIN",
-                "PORTOUT",
-                "PORTINOUT",
-                "PWMOUT",
-                "QSPI",
-                "SERIAL_FC",
-                "SERIAL_ASYNCH",
-                "SPI_ASYNCH",
-                "SPISLAVE",
-                "USBDEVICE",
-                "WATCHDOG"
-            ],
+        "CYESKIT_064B0S2_4343W": {
             "target.macros_add"                         : ["MBEDTLS_USER_CONFIG_FILE=\"mbedTLSConfig_mbedOS.h\"","ARM_UC_USE_PAL_BLOCKDEVICE=0"],
-            "target.network-default-interface-type"     : "WIFI",            
+            "target.network-default-interface-type"     : "WIFI",
             "storage_tdb_internal.internal_base_address": "0x101B8000",
             "storage_tdb_internal.internal_size"        : "0x00018000",
             "storage.storage_type"                      : "TDB_INTERNAL",
             "update-client.storage-address"             : "0x100DC000",
             "update-client.storage-size"                : "0x000DC000",
-            "update-client.storage-locations"           : 1,          
+            "update-client.storage-locations"           : 1,
             "mbed-cloud-client.update-storage"          : "ARM_UCP_FLASHIAP",
             "update-client.application-details"         : "0x10000000",
             "target.bootloader_supported"               : true,
-            "target.mbed_rom_start"                     : "0x10000400",
-            "target.mbed_rom_size"                      : "0x001B7C00",
+            "target.mbed_rom_start"                     : "0x10000000",
+            "target.mbed_rom_size"                      : "0x001B8000",
             "target.sectors"                            : [[268435456, 512]]
         }
     }

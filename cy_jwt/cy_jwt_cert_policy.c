@@ -25,7 +25,7 @@
 *******************************************************************************/
 
 
-#if defined(TARGET_CY8CKIT_064S2_4343W)
+#if (defined(TARGET_CY8CKIT_064S2_4343W) || defined(TARGET_CYESKIT_064B0S2_4343W)) && !defined(DISABLE_CY_FACTORY_FLOW)
 
 
 #include <stdint.h>
@@ -74,9 +74,9 @@ uint32_t Cy_JWT_GetB64DecodeLen(uint32_t base64_size)
 /*******************************************************************************
 * Function Name: Cy_JWT_GetStrDataBody
 ****************************************************************************//**
-* Looks over given JWT packet, find where JWT body is located 
+* Looks over given JWT packet, find where JWT body is located
 * and what length of it is.
-* 
+*
 * \param jwt_str  JWT packet to analyse.
 * \param body_ptr Pointer to JWT body section.
 * \param body_len Length of JWT header section.
@@ -114,7 +114,7 @@ int Cy_JWT_GetStrDataBody(char *jwt_str, char **body_ptr, uint32_t *body_len)
 ****************************************************************************//**
 * Finds item by key (name) in whole JSON.
 * Key can be not unique so function returns first item with this key.
-* 
+*
 * \param key      String key to lookup after.
 * \param json     JSON object to check.
 * \return         Returns pointer to JSON object found.
@@ -207,7 +207,7 @@ int Cy_JWT_ParseProvisioningPacket(char *provPacket, char *certBuff, uint32_t ce
                 if(0 != json)
                 {
                     provReq = Cy_JWT_FindJsonItemByKey("chain_of_trust", json);
-                    if(0 != provReq) 
+                    if(0 != provReq)
                     {
 						if(provReq->type == cJSON_Array)
 						{
@@ -217,7 +217,7 @@ int Cy_JWT_ParseProvisioningPacket(char *provPacket, char *certBuff, uint32_t ce
 								provReq = provReq->next;
 								certificateId--;
 							}
-						}							
+						}
 						if((0 != provReq) && (certificateId == 0))
 						{
 							if(provReq->type == cJSON_String)
@@ -228,7 +228,7 @@ int Cy_JWT_ParseProvisioningPacket(char *provPacket, char *certBuff, uint32_t ce
 					}
 					if(0 != certStr)
 					{
-						if((uint32_t)strlen(certStr) < certBuffLen) 
+						if((uint32_t)strlen(certStr) < certBuffLen)
 						{
 							strcpy(certBuff, certStr);
 							rc = CY_JWT_SUCCESS;
