@@ -260,7 +260,7 @@ int main(void)
     printf("Reset storage done.\n");
 #endif
 
-#if defined(TARGET_CY8CKIT_064S2_4343W) && !defined(DISABLE_CY_FACTORY_FLOW)
+#if (defined(TARGET_CY8CKIT_064S2_4343W) || defined(TARGET_CYESKIT_064B0S2_4343W)) && !defined(DISABLE_CY_FACTORY_FLOW)
     status = cy_factory_flow();
 #else
     status = fcc_developer_flow();
